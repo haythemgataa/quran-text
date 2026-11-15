@@ -1,7 +1,9 @@
 # What is in `data/`
 
-Everything is written by `python3 pipeline/build.py`. All text is UTF-8, NFC,
-with no BOM. Start with `data/catalog.json`: it lists the riwāyāt, the sūrahs, and every
+Everything is written by `python3 pipeline/build.py`. All text is UTF-8 with no
+BOM. The printed text keeps the release's own codepoints, not NFC; the derived
+forms (`rasm`, `pointed`, `plain`) are computed from NFC (`docs/format.md`).
+Start with `data/catalog.json`: it lists the riwāyāt, the sūrahs, and every
 file below with the question it answers.
 
 Two files are **normative**, specified in [`format.md`](format.md)
@@ -147,7 +149,7 @@ word with the alef on the line in one hand and above it in the other. It is not
 counted as the codices disagreeing, and the reason is empirical rather than
 editorial: **all 198 of these words divide the seven riwāyāt along exactly one
 line — `qalun,warsh` against the other five — in both directions and without an
-exception, while the 60 `rasm_variant` words divide them fourteen different
+exception, while the 60 `rasm_variant` words divide them thirteen different
 ways.** Ḥadhf and ithbāt al-alif do vary between the codices of the amṣār, but
 they do not put Makkah with Madinah 198 times out of 198; a publisher's house
 style does. `validate.check_alif_splits` asserts the one-partition fact, so a

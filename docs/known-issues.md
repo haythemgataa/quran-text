@@ -240,8 +240,15 @@ drops it, so a query typed without one still matches.
 The invisible controls are kept on the same principle: 14 right-to-left marks
 `U+200F` in Warsh, and one zero-width joiner `U+200D` each in Dūrī and Sūsī.
 Both joiners are in the same word, 17:7 `لِيَسُ‍ُٔواْ`, at the place where Ḥafṣ,
-Warsh, Qālūn and Bazzī write a kashida. A consumer comparing strings should
-fold the controls out; `docs/SEARCH-FOLD.md` already does.
+Warsh, Qālūn and Bazzī write a kashida. Like the kashida they are not letters:
+the rasm, pointed, plain and folded forms drop them, so they reach neither the
+alignment nor the differences. A consumer comparing strings should fold them
+out too; `docs/SEARCH-FOLD.md` already does.
+
+For two months they did reach the comparison. When the build stopped deleting
+them, the derived forms were taught to skip the kashida and the editorial signs
+but not the controls, and each of the 15 words became a `rasm_variant` of its
+own: the published count read 75 and 292 where it is 60 and 277 (#34).
 
 One dotless beh `U+066E` in Bazzī and one small low seen `U+06E3` in Ḥafṣ v3.0
 occur exactly once each; both are published and neither affects the rasm.
@@ -338,9 +345,26 @@ from the release without saying so.
 are one word: `fold_notation` normalises before comparing, so the cross-release
 report does not see it; `rasm`, `pointed` and `plain` are identical either way;
 and the search fold strips the hamzah. A consumer analysing letters — a tajwīd
-annotator deciding whether a yāʾ before a hamzah is a madd letter, say — should
-**normalise to NFC first**, exactly as every muṣḥaf file's `normalization` block
-says, or 35:43 will read as a yāʾ standing before a hamzah when it is a seat.
+annotator deciding whether a yāʾ before a hamzah is a madd letter, say — has to
+**compose** first, or 35:43 will read as a yāʾ standing before a hamzah when it
+is a seat.
+
+**If you record character offsets into `words`, compose but do not reorder.**
+NFC does two separable things: it composes a letter with the mark after it, and
+it re-sorts the marks on a letter by combining class. The composition is what
+resolves the spellings above. The re-sort is what breaks an offset map: it
+reorders the marks in 22,114 of Ḥafṣ's 77,432 words — almost all of them a
+shaddah written before its vowel — so a span recorded against the
+published text points somewhere else afterwards, and nothing errors.
+`quran-ws/quran-tajweed` measured it: 12,484 of 147,255 spans moved (#24).
+
+Composing alone keeps the order, so an offset map can follow it. In these seven
+files every composition NFC makes is of two adjacent characters, four pairs in
+all: `ا` + `ٓ` → `آ` (16,584 across the seven), `ي` + `ٔ` → `ئ` (46),
+`ے` + `ٔ` → `ۓ` (40), `ا` + `ٔ` → `أ` (1). Replace those, leave every other
+character where it is, and the result differs from NFC only in mark order.
+To compare two strings, NFC both: order does not matter there. To show the text,
+do neither (`docs/format.md`, *The text is the release's*).
 
 ---
 
@@ -501,6 +525,22 @@ be wrong, and that is what this entry exists to say.
 **rubu_al_hizb** sign, and the ḥizb proper is the marginal label these files do
 not carry. The name is imprecise and predates this entry.*
 
+**Qālūn: five inline ۞ the docx does not carry where the print does.** Found
+by haythemgataa (#53) and checked here against the docx data and against the
+KFGQPC 1440 AH Qālūn print, `qaloun-1.pdf` (SHA-256 `57386a90…06cc`, as listed
+by the Quran.ws mirror of KFGQPC files; the PDF page is the muṣḥaf page + 3):
+
+| āyah (Qālūn) | `qalun.json` | the print | page |
+|---|---|---|---|
+| 39:50 | ۞ on 39:51 instead | ۞ before قُلۡ يَٰعِبَادِيَ, «ربع» | 464 |
+| 44:48 | none | ۞ before إِنَّ ٱلۡمُتَّقِينَ, «ثمن» | 498 |
+| 80:33 | none | ۞ before فَإِذَا جَآءَتِ, «ثمن» | 585 |
+| 81:15 | none | ۞ before فَلَآ أُقۡسِمُ, «نصف» | 586 |
+| 83:7 | none | ۞ before كَلَّآ إِنَّ كِتَٰبَ, «ثمن» | 588 |
+
+Recorded, not corrected: `marks` holds the docx's ۞. A Qālūn thumn grid
+built from the docx's ۞ misses these four and puts the fifth an āyah late.
+
 ### 8. Waqf-mark conventions are not comparable between muṣḥafs
 
 Warsh and Qālūn print one general waqf sign 9,948 times. Ḥafṣ, Dūrī and Sūsī
@@ -563,6 +603,17 @@ close: 77,356 of Ḥafṣ's 77,432 words are mapped, 4 āyāt cannot be paired a
 cannot be aligned to the word index. Those words get a `null` entry. An absent
 spelling is recoverable; a guessed one is not.
 
+**Not derived for the other six either** (#19). Two ways of borrowing Ḥafṣ's
+imlāʾī were weighed and neither is published. Inheriting it wherever the
+skeleton matches is wrong as a rule: 1:4 is `مَٰلِكِ` in Ḥafṣ, imlāʾī مالك,
+and `مَلِكِ` in Warsh, Qālūn, Dūrī, Sūsī and Bazzī — one skeleton, `ملك`, read
+two ways, which is exactly where the qirāʾāt differ, so the borrowed spelling
+would be the other reading's. Inheriting it only where the vowelled ʿUthmānī
+form is identical is far safer, but it is still a spelling made by rule rather
+than given by a release, and the rule here is that imlāʾī is published only
+where a release supplies it. A publisher's imlāʾī for any of the six would
+replace this gap outright.
+
 ### 11. The Ḥafṣ v2 CSV's juz column disagrees with the muṣḥaf's own printed marks
 
 Two of the thirty juz starts in `hafsData_v2-0.csv` do not fall where the
@@ -592,7 +643,14 @@ that the document is the one consistent with the division it prints. A consumer
 computing rubu_al_hizbs from `juz_starts` will be one out in juz 4 and juz 11; one
 reading `marks` will not.
 
-*The two are recorded here rather than in `open-findings.json`, which holds
+**Qālūn has the same disagreement, at juz 20 and 22.** Its v2 CSV starts them
+at 27:58 and 33:31; the docx prints its ۞ at **27:61** and **33:35**, and the
+KFGQPC Qālūn print (`qaloun-1.pdf`, §7) has the ۞ there with «حزب» in the
+margin, on pages 382 and 422. At 27:58 and 33:31 the print has no mark. Found by
+haythemgataa (#53), checked here against both. `juz_starts` is still read from
+the CSV, as for Ḥafṣ.
+
+*These are recorded here rather than in `open-findings.json`, which holds
 disagreements about **āyah** counting. This is a disagreement about division.*
 
 ---
